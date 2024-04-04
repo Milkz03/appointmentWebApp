@@ -1,8 +1,8 @@
 <%--
   Created by IntelliJ IDEA.
   User: Lianne
-  Date: 02/04/2024
-  Time: 11:43 pm
+  Date: 04/04/2024
+  Time: 9:37 am
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -21,20 +21,21 @@
     </div>
     <div class="row">
         <div class="col">
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
-                <label for="floatingInput">Patient Name</label>
+            <div class="row">
+                <div class="col">Patient Name</div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input class="form-control" type="text" value="" aria-label="readonly input example" readonly>
+                </div>
             </div>
         </div>
         <div class="col">
-            <div class="form-floating">
-                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option selected>Doctor Name</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-                <label for="floatingSelect">Doctor Name</label>
+            <div class="row">
+                <div class="col">Doctor Name</div>
+            </div>
+            <div class="row">
+                <input class="form-control" type="text" value="" aria-label="readonly input example" readonly>
             </div>
         </div>
     </div>
@@ -48,7 +49,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="datetime-local" class="p-2 form-control">
+                    <input disabled type="datetime-local" class="p-2 form-control">
                 </div>
             </div>
         </div>
@@ -61,7 +62,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="datetime-local" class="p-2 form-control">
+                    <input disabled type="datetime-local" class="p-2 form-control">
                 </div>
             </div>
         </div>
@@ -81,26 +82,26 @@
 
     <div class="row">
         <div class="col">
-            Consultation Details
+            Type
         </div>
     </div>
     <div class="row">
         <div class="col">
             <div class="form-floating">
-                <select disable class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="Consultation">Complete</option>
-                    <option value="InPatient" selected>Queued</option>
-                    <option value="InPatient">No Show</option>
-                    <option value="InPatient">Cancel</option>
-                    <option value="InPatient">Serving</option>
-                    <option value="InPatient">Skip</option>
+                <select disabled class="form-select" id="floatingSelect" aria-label="Floating label select example">
+                    <option value="Complete"selected>Complete</option>
+                    <option value="Queued">Queued</option>
+                    <option value="No Show">No Show</option>
+                    <option value="Cancel">Cancel</option>
+                    <option value="Serving">Serving</option>
+                    <option value="Skip">Skip</option>
                 </select>
                 <label for="floatingSelect">Status</label>
             </div>
         </div>
         <div class="col">
             <div class="form-floating">
-                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
+                <select disabled class="form-select" id="floatingSelect" aria-label="Floating label select example">
                     <option value="Consultation"selected>Consultation</option>
                     <option value="InPatient">InPatient</option>
                 </select>
@@ -115,7 +116,7 @@
         </div>
     </div>
     <div class="row">
-        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Create Appointment</button>
+
     </div>
 </form>
 
