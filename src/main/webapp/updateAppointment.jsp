@@ -1,8 +1,8 @@
 <%--
   Created by IntelliJ IDEA.
-  User: Lianne
-  Date: 02/04/2024
-  Time: 11:43 pm
+  User: mukbookpro
+  Date: 4/7/24
+  Time: 12:28 am
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -15,108 +15,31 @@
 <h1 class="text-center">WebAppointments</h1>
 <br/>
 <h2 class="text-center">Update an Appointment with a Doctor</h2>
+<form action="updateAppointmentPreProcessing.jsp">
+    <jsp:useBean id="UpdateA" class="appointmentManagement.updateAppointment" scope="session"/>
+    <div class="row">
+        <div class="col">
+            Choose Appointment ID
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-floating">
+                <select class="form-select" name="apptid" id="floatingSelect" aria-label="Floating label select example">
+                    <option selected></option>
+                    <% UpdateA.availableAppointments();
+                        for (int i = 0; i < UpdateA.appointmentsIDs.size(); i++) { %>
+                    <option value="<%=UpdateA.appointmentsIDs.get(i)%>"><%=UpdateA.appointmentsIDs.get(i)%></option>
+                    <%  } %>
+                </select>
+                <label for="floatingSelect">Appointment ID</label>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Check Details</button>
+</form>
 <form>
-    <div class="row">
-        <div class="col">Details</div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
-                <label for="floatingInput">Patient Name</label>
-            </div>
-        </div>
-        <div class="col">
-            <div class="form-floating">
-                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option selected>Doctor Name</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-                <label for="floatingSelect">Doctor Name</label>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="row">
-
-                <div class="col">
-                    Date and Time Queued
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="datetime-local" class="p-2 form-control">
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="row">
-
-                <div class="col">
-                    Start Time
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="datetime-local" class="p-2 form-control">
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="row">
-                <div class="col">
-                    End Time
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="datetime-local" class="p-2 form-control">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            Consultation Details
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="form-floating">
-                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="Consultation"selected>Complete</option>
-                    <option value="InPatient">Queued</option>
-                    <option value="InPatient">No Show</option>
-                    <option value="InPatient">Cancel</option>
-                    <option value="InPatient">Serving</option>
-                    <option value="InPatient">Skip</option>
-                </select>
-                <label for="floatingSelect">Status</label>
-            </div>
-        </div>
-        <div class="col">
-            <div class="form-floating">
-                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="Consultation"selected>Consultation</option>
-                    <option value="InPatient">InPatient</option>
-                </select>
-                <label for="floatingSelect">Type</label>
-            </div>
-        </div>
-        <div class="col form-check">
-            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-            <label class="form-check-label" for="flexCheckDefault">
-                Virtual
-            </label>
-        </div>
-    </div>
-    <div class="row">
-        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Update Appointment</button>
-    </div>
+    <button type="submit" class="btn btn-primary mx-auto my-2 w-100">See All Appointments</button>
 </form>
 
 </body>

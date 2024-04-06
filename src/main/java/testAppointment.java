@@ -27,8 +27,7 @@ public class testAppointment {
             System.out.println("Connection Successful");
             return 1;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("Nutted");
+            e.printStackTrace();
             return 0;
         }
     }
