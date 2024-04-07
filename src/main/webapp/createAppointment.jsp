@@ -23,18 +23,35 @@
         <div class="col">
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
-                <label for="floatingInput">Patient Name</label>
+                <label for="floatingInput">Appointment ID</label>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
+                <label for="floatingInput">Patient ID</label>
             </div>
         </div>
         <div class="col">
             <div class="form-floating">
                 <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option selected>Doctor Name</option>
+                    <option selected>Doctor ID</option>
                     <option value="1">One</option>
                     <option value="2">Two</option>
                     <option value="3">Three</option>
                 </select>
-                <label for="floatingSelect">Doctor Name</label>
+                <label for="floatingSelect">Doctor ID</label>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
+                    <option selected>Clinic ID</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+                <label for="floatingSelect">Clinic ID</label>
             </div>
         </div>
     </div>
