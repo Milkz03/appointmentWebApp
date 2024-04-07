@@ -15,7 +15,8 @@
 <h1 class="text-center">WebAppointments</h1>
 <br/>
 <h2 class="text-center">Cancel an Appointment with a Doctor</h2>
-<form>
+<form action="deleteAppointmentProcessing.jsp">
+    <jsp:useBean id="DeleteA" class="appointmentManagement.deleteAppointment" scope="session"/>
     <div class="row">
         <div class="col">
             Choose Appointment ID
@@ -24,11 +25,12 @@
     <div class="row">
         <div class="col">
             <div class="form-floating">
-                <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
+                <select class="form-select" name="appointmentID" id="floatingSelect" aria-label="Floating label select example">
                     <option selected></option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                    <% DeleteA.availableAppointments();
+                        for (int i = 0; i < DeleteA.appointmentsIDs.size(); i++) { %>
+                    <option value="<%=DeleteA.appointmentsIDs.get(i)%>"><%=DeleteA.appointmentsIDs.get(i)%></option>
+                    <%  } %>
                 </select>
                 <label for="floatingSelect">Appointment ID</label>
             </div>
