@@ -10,8 +10,7 @@ public class CreateAppointment {
 
     public boolean createNewAppointment(Appointment appointment) {
         String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000";
-
-        // Using try-with-resources for automatic resource management
+        
         try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement pstmt = conn.prepareStatement(
                      "INSERT INTO appointments (patientID, clinicID, doctorID, apptStatus, TimeQueued, QueueDate, StartTime, consultationType, virtualConsultation, EndTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
@@ -31,10 +30,10 @@ public class CreateAppointment {
             pstmt.setTimestamp(10, appointment.EndTime != null ? new Timestamp(appointment.EndTime.getTime()) : null);
 
             pstmt.executeUpdate();
-            return true; // Successfully created the appointment
+            return true;
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
-            return false; // Indicate failure
+            return false;
         }
     }
 }
