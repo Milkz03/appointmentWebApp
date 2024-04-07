@@ -16,37 +16,33 @@
     <jsp:useBean id="UpdateC" class="appointmentManagement.updateAppointment" scope="session"/>
 
     <%  //TODO: FIX DATE TIME FORMAT
-        String v_patientName    = request.getParameter("patientName");
-        String v_doctorName     = request.getParameter("doctorName");
-        String v_timeQueued     = request.getParameter("timeQueued");
-        String v_startTime      = request.getParameter("startTime");
-        String v_endTime        = request.getParameter("endTime");
-        String v_status         = request.getParameter("status");
-        String v_type           = request.getParameter("type");
-        String v_virtual        = request.getParameter("virtual");
+        String v_patientName            = request.getParameter("patientName");
+        String v_doctorName             = request.getParameter("doctorName");
+        String v_timeQueued             = request.getParameter("timeQueued");
+        String v_startTime              = request.getParameter("startTime");
+        String v_endTime                = request.getParameter("endTime");
+        String v_apptStatus             = request.getParameter("apptStatus");
+        String v_consultationType       = request.getParameter("consultationType");
+        String v_virtualConsultation    = request.getParameter("virtualConsultation");
 
-        System.out.println(v_patientName);
-        System.out.println(v_doctorName);
-        System.out.println(v_timeQueued);
-        System.out.println(v_startTime);
-        System.out.println(v_endTime);
-        System.out.println(v_status);
-        System.out.println(v_type);
-        System.out.println(v_virtual);
+//        System.out.println(v_patientName);
+//        System.out.println(v_doctorName);
+//        System.out.println(v_timeQueued);
+//        System.out.println(v_startTime);
+//        System.out.println(v_endTime);
+//        System.out.println(v_apptStatus);
+//        System.out.println(v_consultationType);
+//        System.out.println(v_virtualConsultation);
 
-        UpdateC.patientID       = v_patientName;
-        UpdateC.doctorID        = v_doctorName;
-        UpdateC.timeQueued      = v_timeQueued;
-        UpdateC.startTime       = v_startTime;
-        UpdateC.endTime         = v_endTime;
-        UpdateC.status          = v_status;
-        UpdateC.type            = v_type;
-        UpdateC.appointmentID   = (String) session.getAttribute("appointmentID");
-        if (v_virtual != null) {
-            UpdateC.virtual = 1;
-        } else {
-            UpdateC.virtual  = 0;
-        }
+        UpdateC.patientID               = v_patientName;
+        UpdateC.doctorID                = v_doctorName;
+        UpdateC.timeQueued              = v_timeQueued;
+        UpdateC.startTime               = v_startTime;
+        UpdateC.endTime                 = v_endTime;
+        UpdateC.apptStatus              = v_apptStatus;
+        UpdateC.consultationType        = v_consultationType;
+        UpdateC.virtualConsultation     = UpdateC.virtualUpdate(v_virtualConsultation);
+        UpdateC.appointmentID           = (String) session.getAttribute("appointmentID");
 
 
         int result = UpdateC.updateAppointments();

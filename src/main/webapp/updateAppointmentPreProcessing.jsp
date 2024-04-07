@@ -17,7 +17,7 @@
 <h2 class="text-center">Update an Appointment with a Doctor</h2>
 <form action="updateAppointmentProcessing.jsp">
     <jsp:useBean id="UpdateB" class="appointmentManagement.updateAppointment" scope="session"/>
-    <% UpdateB.appointmentID = request.getParameter("apptid");
+    <% UpdateB.appointmentID = request.getParameter("appointmentID");
        UpdateB.infoAppointments();
        session.setAttribute("appointmentID", UpdateB.appointmentID);%>
     <div class="row">
@@ -52,7 +52,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="datetime-local" class="p-2 form-control" name="timeQueued" value="<%=UpdateB.timeQueued%>">
+                    <input type="datetime-local" class="p-2 form-control" name="timeQueued" value="<%=UpdateB.timeQueued%>" step="1">
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="datetime-local" class="p-2 form-control" name="startTime" value="<%=UpdateB.startTime%>">
+                    <input type="datetime-local" class="p-2 form-control" name="startTime" value="<%=UpdateB.startTime%>" step="1">
                 </div>
             </div>
         </div>
@@ -77,7 +77,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="datetime-local" class="p-2 form-control" name="endTime" value="<%=UpdateB.endTime%>">
+                    <input type="datetime-local" class="p-2 form-control" name="endTime" value="<%=UpdateB.endTime%>" step="1">
                 </div>
             </div>
         </div>
@@ -91,8 +91,8 @@
     <div class="row">
         <div class="col">
             <div class="form-floating">
-                <select class="form-select" name="status" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="<%=UpdateB.status%>"selected><%=UpdateB.status%></option>
+                <select class="form-select" name="apptStatus" id="floatingSelect" aria-label="Floating label select example">
+                    <option value="<%=UpdateB.apptStatus%>"selected><%=UpdateB.apptStatus%></option>
                     <option value="Queued">Queued</option>
                     <option value="No Show">No Show</option>
                     <option value="Cancel">Cancel</option>
@@ -104,15 +104,15 @@
         </div>
         <div class="col">
             <div class="form-floating">
-                <select class="form-select" name="type" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="<%=UpdateB.type%>"selected><%=UpdateB.type%></option>
+                <select class="form-select" name="consultationType" id="floatingSelect" aria-label="Floating label select example">
+                    <option value="<%=UpdateB.consultationType%>"selected><%=UpdateB.consultationType%></option>
                     <option value="InPatient">InPatient</option>
                 </select>
                 <label for="floatingSelect">Type</label>
             </div>
         </div>
         <div class="col form-check">
-            <input class="form-check-input" type="checkbox" name="virtual" id="flexCheckDefault" <%=UpdateB.virtualState%>>
+            <input class="form-check-input" type="checkbox" name="virtualConsultation" id="flexCheckDefault" <%=UpdateB.virtualState%>>
             <label class="form-check-label" for="flexCheckDefault">
                 Virtual
             </label>

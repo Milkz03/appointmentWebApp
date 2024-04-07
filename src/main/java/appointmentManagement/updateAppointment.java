@@ -1,19 +1,21 @@
 package appointmentManagement;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class updateAppointment {
 
     public String appointmentID;
     public String patientID;
     public String doctorID;
-    public String status;
+    public String apptStatus;
     public String timeQueued;
     public String startTime;
     public String endTime;
-    public String type;
-    public int virtual;
+    public String consultationType;
+    public int virtualConsultation;
     public String virtualState;
 
     public ArrayList<String> appointmentsIDs = new ArrayList<>();
@@ -24,13 +26,13 @@ public class updateAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
 
-            PreparedStatement pstmt = conn.prepareStatement("SELECT apptid FROM appointments");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT appointmentID FROM appointments WHERE appointmentID='test1'");
             ResultSet rst = pstmt.executeQuery();
 
             appointmentsIDs.clear();
 
             while(rst.next()){
-                appointmentID = rst.getString("apptid");
+                appointmentID = rst.getString("appointmentID");
                 appointmentsIDs.add(appointmentID);
             }
 
@@ -52,20 +54,20 @@ public class updateAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
 
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE apptid=?");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
             pstmt.setString(1, appointmentID);
             ResultSet rst = pstmt.executeQuery();
 
             while(rst.next()) {
-                patientID = rst.getString("pxid");
-                doctorID = rst.getString("doctorid");
-                status = rst.getString("status");
+                patientID = rst.getString("patientID");
+                doctorID = rst.getString("doctorID");
+                apptStatus = rst.getString("apptStatus");
                 timeQueued = rst.getString("TimeQueued");
                 startTime = rst.getString("StartTime");
                 endTime = rst.getString("EndTime");
-                type = rst.getString("type");
-                virtual = rst.getInt("virtual");
-                if (virtual==1){
+                consultationType = rst.getString("consultationType");
+                virtualConsultation = rst.getInt("virtualConsultation");
+                if (virtualConsultation==1){
                     virtualState = "checked";
                 } else {
                     virtualState = "";
@@ -90,15 +92,15 @@ public class updateAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
 
-            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET pxid=?, doctorid=?, status=?, TimeQueued=?, StartTime=?, EndTime=?, type=?, appointments.virtual=? WHERE apptid=?");
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET patientID=?, doctorID=?, apptStatus=?, TimeQueued=?, StartTime=?, EndTime=?, consultationType=?, virtualConsultation=? WHERE appointmentID=?");
             pstmt.setString(1, patientID);
             pstmt.setString(2, doctorID);
-            pstmt.setString(3, status);
-            pstmt.setString(4, timeQueued);
-            pstmt.setString(5, startTime);
-            pstmt.setString(6, endTime);
-            pstmt.setString(7, type);
-            pstmt.setInt(8, virtual);
+            pstmt.setString(3, apptStatus);
+            pstmt.setTimestamp(4, fixDateFormat(timeQueued));
+            pstmt.setTimestamp(5, fixDateFormat(startTime));
+            pstmt.setTimestamp(6, fixDateFormat(endTime));
+            pstmt.setString(7, consultationType);
+            pstmt.setInt(8, virtualConsultation);
             pstmt.setString(9, appointmentID);
 
             pstmt.executeUpdate();
@@ -115,6 +117,27 @@ public class updateAppointment {
         }
     }
 
+    public int virtualUpdate(String v_virtual){
+        if (v_virtual != null) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public Timestamp fixDateFormat(String date) throws ParseException {
+        SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        if (date.length() == 16) {
+            date += ":00";
+        }
+        if (!date.isEmpty()) {
+            java.util.Date parsedDate = sdfInput.parse(date);
+            return new Timestamp(parsedDate.getTime());
+        } else {
+            return null;
+        }
+    }
+
     public static void main(String[] args) {
         updateAppointment update = new updateAppointment();
 //        update.availableAppointments();
@@ -126,22 +149,22 @@ public class updateAppointment {
 //        update.infoAppointments();
 //        System.out.println(update.patientID);
 //        System.out.println(update.doctorID);
-//        System.out.println(update.status);
+//        System.out.println(update.apptStatus);
 //        System.out.println(update.timeQueued);
 //        System.out.println(update.startTime);
 //        System.out.println(update.endTime);
-//        System.out.println(update.type);
-//        System.out.println(update.virtual);
+//        System.out.println(update.consultationType);
+//        System.out.println(update.virtualConsultation);
 
 //        update.appointmentID = "00119BFBA0499C5574632FA796ABE466";
 //        update.patientID = "79047D3DFD5057BB70B8517736C36DCE";
 //        update.doctorID = "1E8C391ABFDE9ABEA82D75A2D60278D4";
-//        update.status = "Complete";
+//        update.apptStatus = "Complete";
 //        update.timeQueued = "2009-04-25 05:49:00";
 //        update.startTime = "2009-04-25 05:49:00";
 //        update.endTime = "";
-//        update.type = "Consultation";
-//        update.virtual = 0;
+//        update.consultationType = "Consultation";
+//        update.virtualConsultation = 0;
 //
 //        update.updateAppointments();
     }

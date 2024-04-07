@@ -25,7 +25,7 @@
     <div class="row">
         <div class="col">
             <div class="form-floating">
-                <select class="form-select" name="apptid" id="floatingSelect" aria-label="Floating label select example">
+                <select class="form-select" name="appointmentID" id="floatingSelect" aria-label="Floating label select example">
                     <option selected></option>
                     <% UpdateA.availableAppointments();
                         for (int i = 0; i < UpdateA.appointmentsIDs.size(); i++) { %>
