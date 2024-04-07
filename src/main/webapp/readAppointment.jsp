@@ -36,7 +36,7 @@
     </div>
     <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Check Details</button>
 </form>
-<form>
+<form action="allAppointments.jsp">
     <button type="submit" class="btn btn-primary mx-auto my-2 w-100">See All Appointments</button>
 </form>
 
