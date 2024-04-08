@@ -21,9 +21,10 @@ public class updateAppointment {
 
     public int availableAppointments(){
         try {
+            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("SELECT appointmentID FROM appointments WHERE appointmentID LIKE 'test%'");
             ResultSet rst = pstmt.executeQuery();
@@ -49,9 +50,10 @@ public class updateAppointment {
 
     public int infoAppointments() {
         try {
+            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
             pstmt.setString(1, appointmentID);
@@ -87,9 +89,10 @@ public class updateAppointment {
 
     public int updateAppointments() {
         try {
+            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET patientID=?, doctorID=?, apptStatus=?, TimeQueued=?, StartTime=?, EndTime=?, consultationType=?, virtualConsultation=? WHERE appointmentID=?");
             pstmt.setString(1, patientID);
@@ -139,6 +142,8 @@ public class updateAppointment {
 
     public static void main(String[] args) {
         updateAppointment update = new updateAppointment();
+        Appointment appointment = new Appointment();
+        System.out.println(appointment.connectionString());
 //        update.availableAppointments();
 //        for (int i = 0; i < update.appointmentsIDs.size(); i++) {
 //            System.out.println(update.appointmentsIDs.get(i));

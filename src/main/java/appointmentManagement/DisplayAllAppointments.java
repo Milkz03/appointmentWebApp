@@ -19,7 +19,8 @@ public class DisplayAllAppointments {
         }
 
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000");
+            Appointment appt = new Appointment();
+            conn = DriverManager.getConnection(appt.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments LIMIT 50");
             ResultSet rst = pstmt.executeQuery();

@@ -19,9 +19,10 @@ public class readAppointment {
 
     public int availableAppointments(){
         try {
+            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("SELECT appointmentID FROM appointments WHERE appointmentID LIKE 'test%'");
             ResultSet rst = pstmt.executeQuery();
@@ -47,9 +48,10 @@ public class readAppointment {
 
     public int infoAppointments() {
         try {
+            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
             pstmt.setString(1, appointmentID);
