@@ -52,9 +52,11 @@ public class CreateAppointmentServlet extends HttpServlet {
 
             // Redirect based on success of operation
             if (success) {
-                response.sendRedirect("appointmentCreated.jsp"); // Or some success page
+//                response.sendRedirect("appointmentCreated.jsp"); // Or some success page
+                response.sendRedirect("index.jsp");
             } else {
-                response.sendRedirect("appointmentError.jsp"); // Or some error handling page
+//                response.sendRedirect("appointmentError.jsp"); // Or some error handling page
+                response.sendRedirect("index.jsp");
             }
         } catch (Exception e) {
             // Handle parsing or other exceptions

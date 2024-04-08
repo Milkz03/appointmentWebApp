@@ -10,7 +10,10 @@ public class CreateAppointment {
 
     public boolean createNewAppointment(Appointment appointment) {
         // Database connection string
-        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000";
+        // Uncomment if you want to insert at a particular node
+        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000"; // central node
+//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&connectTimeout=3000"; // node 2
+//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&connectTimeout=3000"; // node 3
 
         // Attempt to load the JDBC driver
         try {

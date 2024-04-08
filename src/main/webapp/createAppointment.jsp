@@ -47,9 +47,9 @@
         <input type="checkbox" class="form-check-input" id="virtualConsultation" name="virtualConsultation" value="1">
         <label class="form-check-label" for="virtualConsultation">Virtual Consultation</label>
     </div>
-    <button type="submit" class="btn btn-primary">Create Appointment</button>
+    <button type="submit" class="btn btn-primary" id="create-appt-btn">Create Appointment</button>
 </form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kQtW33rZJAHj6NBK8rDnBy3v5a1Hgf5DIPzlC8ghKBUQaDX3H4yvWowZ2kz37HDN" crossorigin="anonymous"></script>
+<%--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kQtW33rZJAHj6NBK8rDnBy3v5a1Hgf5DIPzlC8ghKBUQaDX3H4yvWowZ2kz37HDN" crossorigin="anonymous"></script>--%>
 </body>
 </html>
