@@ -15,27 +15,32 @@
 <h1 class="text-center">WebAppointments</h1>
 <br/>
 <h2 class="text-center">Make an Appointment with a Doctor</h2>
-<form>
+<form action="index.jsp">
+    <jsp:useBean id="ReadAppointment" class="appointmentManagement.readAppointment" scope="session"/>
+    <% ReadAppointment.appointmentID = request.getParameter("appointmentID");
+        ReadAppointment.infoAppointments();
+        session.setAttribute("appointmentID", ReadAppointment.appointmentID);%>
     <div class="row">
         <div class="col">Details</div>
     </div>
     <div class="row">
         <div class="col">
-            <div class="row">
-                <div class="col">Patient Name</div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input class="form-control" type="text" value="" aria-label="readonly input example" readonly>
-                </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="patientName" id="floatingInput"
+                       value="<%= ReadAppointment.patientID%>" placeholder="name@example.com" disabled>
+                <label for="floatingInput">Patient Name</label>
             </div>
         </div>
         <div class="col">
-            <div class="row">
-                <div class="col">Doctor Name</div>
-            </div>
-            <div class="row">
-                <input class="form-control" type="text" value="" aria-label="readonly input example" readonly>
+            <div class="form-floating">
+                <select class="form-select" name="doctorName" id="floatingSelect"
+                        disabled>
+                    <option selected> <%=ReadAppointment.doctorID%> </option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+                <label for="floatingSelect">Doctor Name</label>
             </div>
         </div>
     </div>
@@ -49,7 +54,8 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input disabled type="datetime-local" class="p-2 form-control">
+                    <input type="datetime-local" class="p-2 form-control" name="timeQueued"
+                           value="<%=ReadAppointment.timeQueued%>" step="1" disabled>
                 </div>
             </div>
         </div>
@@ -62,7 +68,8 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input disabled type="datetime-local" class="p-2 form-control">
+                    <input type="datetime-local" class="p-2 form-control" name="startTime"
+                           value="<%=ReadAppointment.startTime%>" step="1" disabled>
                 </div>
             </div>
         </div>
@@ -74,7 +81,8 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input disabled type="datetime-local" class="p-2 form-control">
+                    <input type="datetime-local" class="p-2 form-control" name="endTime"
+                           value="<%=ReadAppointment.endTime%>" step="1" disabled>
                 </div>
             </div>
         </div>
@@ -82,41 +90,43 @@
 
     <div class="row">
         <div class="col">
-            Type
+            Consultation Details
         </div>
     </div>
     <div class="row">
         <div class="col">
             <div class="form-floating">
-                <select disabled class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="Complete"selected>Complete</option>
+                <select class="form-select" name="apptStatus" id="floatingSelect2" disabled>
+                    <option value="<%=ReadAppointment.apptStatus%>" selected><%=ReadAppointment.apptStatus%></option>
                     <option value="Queued">Queued</option>
                     <option value="No Show">No Show</option>
                     <option value="Cancel">Cancel</option>
                     <option value="Serving">Serving</option>
                     <option value="Skip">Skip</option>
                 </select>
-                <label for="floatingSelect">Status</label>
+                <label for="floatingSelect2">Status</label>
             </div>
         </div>
         <div class="col">
             <div class="form-floating">
-                <select disabled class="form-select" id="floatingSelect" aria-label="Floating label select example">
-                    <option value="Consultation"selected>Consultation</option>
+                <select class="form-select" name="consultationType" id="floatingSelect3"
+                    disabled>
+                    <option value="<%=ReadAppointment.consultationType%>" selected><%=ReadAppointment.consultationType%></option>
                     <option value="InPatient">InPatient</option>
                 </select>
-                <label for="floatingSelect">Type</label>
+                <label for="floatingSelect3">Type</label>
             </div>
         </div>
         <div class="col form-check">
-            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+            <input class="form-check-input" type="checkbox" name="virtualConsultation" id="flexCheckDefault"
+                <%=ReadAppointment.virtualState%> disabled>
             <label class="form-check-label" for="flexCheckDefault">
                 Virtual
             </label>
         </div>
     </div>
     <div class="row">
-
+        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
     </div>
 </form>
 

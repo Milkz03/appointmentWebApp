@@ -28,4 +28,6 @@ public class Appointment {
         this.consultationType = consultationType;
         this.virtualConsultation = virtualConsultation;
     }
+
+    public Appointment(){}
 }
