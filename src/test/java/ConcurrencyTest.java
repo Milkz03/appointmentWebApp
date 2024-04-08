@@ -3,9 +3,12 @@ import appointmentManagement.updateAppointment;
 import org.testng.annotations.Test;
 
 import java.sql.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.LocalDateTime;
 
 public class ConcurrencyTest {
     final updateAppointment updateAppointment = new updateAppointment();
@@ -52,9 +55,11 @@ public class ConcurrencyTest {
         readAppointment.appointmentID = "test1";
 
         // Given two concurrent transactions
-        //one updates
+        // one updates
         Thread thread1 = new Thread(() -> {
             updateAppointment.appointment.connectionNumber = 1;
+            updateAppointment.startTransaction();
+            updateAppointment.infoAppointments();
             updateAppointment.patientID = "Patient1";
             updateAppointment.doctorID = "Doctor1";
             updateAppointment.apptStatus = "Status1";
@@ -63,19 +68,18 @@ public class ConcurrencyTest {
             updateAppointment.endTime = "2024-04-08T11:00:00";
             updateAppointment.consultationType = "ConsultationType1";
             updateAppointment.virtualConsultation = 1;
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread1: " + dtf.format(now));
             updateAppointment.updateAppointments();
         });
         // the other reads
         Thread thread2 = new Thread(() -> {
             readAppointment.appointment.connectionNumber = 0;
-            readAppointment.patientID = "Patient2";
-            readAppointment.doctorID = "Doctor2";
-            readAppointment.apptStatus = "Status2";
-            readAppointment.timeQueued = "2024-04-08T11:00:00";
-            readAppointment.startTime = "2024-04-08T11:30:00";
-            readAppointment.endTime = "2024-04-08T12:00:00";
-            readAppointment.consultationType = "ConsultationType2";
-            readAppointment.virtualConsultation = 0;
+            readAppointment.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread2: " +dtf.format(now));
             readAppointment.infoAppointments();
         });
 
@@ -86,33 +90,46 @@ public class ConcurrencyTest {
         thread2.join();
 
         // thread1 updates the appointment -> once done, thread2 reads the appointment
-        Connection conn = null;
+        Connection conn1 = null;
+        Connection conn2 = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb");
 
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
-            pstmt.setString(1, "test1");
-            ResultSet resultSet = pstmt.executeQuery();
+            PreparedStatement pstmt1 = conn1.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            pstmt1.setString(1, "test1");
+            ResultSet resultSet1 = pstmt1.executeQuery();
+
+            PreparedStatement pstmt2 = conn2.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            pstmt2.setString(1, "test1");
+            ResultSet resultSet2 = pstmt2.executeQuery();
 
             // Then the appointment information would have the information from the second thread
-            if (resultSet.next()) {
-                assertEquals("Patient1", resultSet.getString("patientID"));
-                assertEquals("Doctor1", resultSet.getString("doctorID"));
-                assertEquals("Status1", resultSet.getString("apptStatus"));
-
+            if (resultSet1.next() && resultSet2.next()) {
+                assertEquals(resultSet2.getString("patientID"), resultSet1.getString("patientID"));
+                assertEquals(resultSet2.getString("doctorID"), resultSet1.getString("doctorID"));
+                assertEquals(resultSet2.getString("TimeQueued"), resultSet1.getString("TimeQueued"));
+                assertEquals(resultSet2.getString("QueueDate"), resultSet1.getString("QueueDate"));
+                assertEquals(resultSet2.getString("StartTime"), resultSet1.getString("StartTime"));
+                assertEquals(resultSet2.getString("EndTime"), resultSet1.getString("EndTime"));
+                assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
+                assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
             } else {
                 fail("Appointment not found in the database");
             }
 
-            pstmt.close();
-            conn.close();
+            pstmt1.close();
+            conn1.close();
+            pstmt2.close();
+            conn2.close();
 
         } catch (Exception e) {
             e.printStackTrace();
             fail("An exception occurred while querying the database");
-            if (conn != null) {
-                conn.close();
+            if (conn1 != null && conn2 != null) {
+                conn1.close();
+                conn2.close();
             }
         }
     }
@@ -123,6 +140,8 @@ public class ConcurrencyTest {
         // Given two concurrent updates on the same appointment
         Thread thread1 = new Thread(() -> {
             updateAppointment.appointment.connectionNumber = 1;
+            updateAppointment.startTransaction();
+            updateAppointment.infoAppointments();
             updateAppointment.patientID = "Patient1";
             updateAppointment.doctorID = "Doctor1";
             updateAppointment.apptStatus = "Status1";
@@ -136,6 +155,8 @@ public class ConcurrencyTest {
 
         Thread thread2 = new Thread(() -> {
             updateAppointment.appointment.connectionNumber = 0;
+            updateAppointment.startTransaction();
+            updateAppointment.infoAppointments();
             updateAppointment.patientID = "Patient2";
             updateAppointment.doctorID = "Doctor2";
             updateAppointment.apptStatus = "Status2";
@@ -153,34 +174,47 @@ public class ConcurrencyTest {
         thread1.join();
         thread2.join();
 
-        // thread1 updates the appointment -> once done, thread2 updates the appointment
-        Connection conn = null;
+        // thread1 updates the appointment -> once done, thread2 reads the appointment
+        Connection conn1 = null;
+        Connection conn2 = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb");
 
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
-            pstmt.setString(1, "test1");
-            ResultSet resultSet = pstmt.executeQuery();
+            PreparedStatement pstmt1 = conn1.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            pstmt1.setString(1, "test1");
+            ResultSet resultSet1 = pstmt1.executeQuery();
+
+            PreparedStatement pstmt2 = conn2.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            pstmt2.setString(1, "test1");
+            ResultSet resultSet2 = pstmt2.executeQuery();
 
             // Then the appointment information would have the information from the second thread
-            if (resultSet.next()) {
-                assertEquals("Patient2", resultSet.getString("patientID"));
-                assertEquals("Doctor2", resultSet.getString("doctorID"));
-                assertEquals("Status2", resultSet.getString("apptStatus"));
-
+            if (resultSet1.next() && resultSet2.next()) {
+                assertEquals(resultSet2.getString("patientID"), resultSet1.getString("patientID"));
+                assertEquals(resultSet2.getString("doctorID"), resultSet1.getString("doctorID"));
+                assertEquals(resultSet2.getString("TimeQueued"), resultSet1.getString("TimeQueued"));
+                assertEquals(resultSet2.getString("QueueDate"), resultSet1.getString("QueueDate"));
+                assertEquals(resultSet2.getString("StartTime"), resultSet1.getString("StartTime"));
+                assertEquals(resultSet2.getString("EndTime"), resultSet1.getString("EndTime"));
+                assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
+                assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
             } else {
                 fail("Appointment not found in the database");
             }
 
-            pstmt.close();
-            conn.close();
+            pstmt1.close();
+            conn1.close();
+            pstmt2.close();
+            conn2.close();
 
         } catch (Exception e) {
             e.printStackTrace();
             fail("An exception occurred while querying the database");
-            if (conn != null) {
-                conn.close();
+            if (conn1 != null && conn2 != null) {
+                conn1.close();
+                conn2.close();
             }
         }
     }
