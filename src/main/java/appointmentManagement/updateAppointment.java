@@ -55,7 +55,7 @@ public class updateAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
 
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=? FOR UPDATE");
             pstmt.setString(1, appointmentID);
             ResultSet rst = pstmt.executeQuery();
 
@@ -107,7 +107,11 @@ public class updateAppointment {
 
             pstmt.executeUpdate();
 
+            PreparedStatement pstmtCom = conn.prepareStatement("COMMIT");
+            pstmtCom.executeQuery();
+
             pstmt.close();
+            pstmtCom.close();
             conn.close();
 
             System.out.println("Connection Successful");
@@ -137,6 +141,28 @@ public class updateAppointment {
             return new Timestamp(parsedDate.getTime());
         } else {
             return null;
+        }
+    }
+
+    public int startTransaction(){
+        try {
+            Appointment appointment = new Appointment();
+            Connection conn;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(appointment.connectionString());
+
+            PreparedStatement pstmt = conn.prepareStatement("START TRANSACTION");
+            pstmt.executeQuery();
+
+            pstmt.close();
+            conn.close();
+
+            System.out.println("Connection Successful");
+            return 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 

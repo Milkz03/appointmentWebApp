@@ -17,7 +17,8 @@
 <h2 class="text-center">Make an Appointment with a Doctor</h2>
 <form action="index.jsp">
     <jsp:useBean id="ReadAppointment" class="appointmentManagement.readAppointment" scope="session"/>
-    <% ReadAppointment.appointmentID = request.getParameter("appointmentID");
+    <%  ReadAppointment.startTransaction();
+        ReadAppointment.appointmentID = request.getParameter("appointmentID");
         ReadAppointment.infoAppointments();
         session.setAttribute("appointmentID", ReadAppointment.appointmentID);%>
     <div class="row">

@@ -53,7 +53,7 @@ public class readAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
 
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments WHERE appointmentID=? LOCK IN SHARE MODE");
             pstmt.setString(1, appointmentID);
             ResultSet rst = pstmt.executeQuery();
 
@@ -72,6 +72,32 @@ public class readAppointment {
                     virtualState = "";
                 }
             }
+
+            PreparedStatement pstmtCom = conn.prepareStatement("COMMIT");
+            pstmtCom.executeQuery();
+
+            pstmt.close();
+            pstmtCom.close();
+            conn.close();
+
+            System.out.println("Connection Successful");
+            return 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int startTransaction(){
+        try {
+            Appointment appointment = new Appointment();
+            Connection conn;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(appointment.connectionString());
+
+            PreparedStatement pstmt = conn.prepareStatement("START TRANSACTION");
+            pstmt.executeQuery();
 
             pstmt.close();
             conn.close();
