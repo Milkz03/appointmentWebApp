@@ -49,7 +49,7 @@ public class ConcurrencyTest {
         thread1.join();
         thread2.join();
 
-        // thread1 updates the appointment -> once done, thread2 updates the appointment
+        // thread1 updates the appointment -> once done, thread2 reads the appointment
         Connection conn = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
