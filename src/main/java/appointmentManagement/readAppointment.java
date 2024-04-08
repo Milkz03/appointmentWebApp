@@ -74,7 +74,7 @@ public class readAppointment {
             }
 
             PreparedStatement pstmtCom = conn.prepareStatement("COMMIT");
-            pstmtCom.executeQuery();
+            pstmtCom.executeUpdate();
 
             pstmt.close();
             pstmtCom.close();
@@ -97,7 +97,7 @@ public class readAppointment {
             conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("START TRANSACTION");
-            pstmt.executeQuery();
+            pstmt.executeUpdate();
 
             pstmt.close();
             conn.close();
