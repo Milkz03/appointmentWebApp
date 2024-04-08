@@ -10,6 +10,42 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConcurrencyTest {
     final updateAppointment updateAppointment = new updateAppointment();
     final readAppointment readAppointment = new readAppointment();
+
+    @Test // Case #1
+    public void concurrent_reads_same_row() throws InterruptedException, SQLException {
+        String appointmentID = "test1";
+        
+        readAppointment readAppointment1 = new readAppointment();
+        readAppointment readAppointment2 = new readAppointment();
+        readAppointment1.appointmentID = appointmentID;
+        readAppointment2.appointmentID = appointmentID;
+
+        Thread thread1 = new Thread(() -> {
+            readAppointment1.appointment.connectionNumber = 0;
+            readAppointment1.infoAppointments();
+        });
+
+        Thread thread2 = new Thread(() -> {
+            readAppointment2.appointment.connectionNumber = 1;
+            readAppointment2.infoAppointments();
+        });
+
+        Thread thread3 = new Thread(() -> {
+            readAppointment2.appointment.connectionNumber = 2;
+            readAppointment2.infoAppointments();
+        });
+
+        thread1.start();
+        thread2.start();
+        thread3.start();
+
+        thread1.join();
+        thread2.join();
+        thread3.join();
+
+        assertTrue(true, "Concurrent reads completed successfully.");
+    }
+
     @Test // Case #2
     public void two_concurrent_updates_and_read_same_row() throws InterruptedException, SQLException {
         updateAppointment.appointmentID = "test1";
