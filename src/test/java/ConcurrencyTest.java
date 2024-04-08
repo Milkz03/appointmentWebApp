@@ -1,3 +1,4 @@
+import appointmentManagement.readAppointment;
 import appointmentManagement.updateAppointment;
 import org.testng.annotations.Test;
 
@@ -6,10 +7,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class concurrencyTest {
-    @Test
-    public void testConcurrentUpdates() throws InterruptedException, SQLException {
-        final updateAppointment updateAppointment = new updateAppointment();
+public class ConcurrencyTest {
+    final updateAppointment updateAppointment = new updateAppointment();
+    @Test // Case #3
+    public void two_concurrent_updates_same_row() throws InterruptedException, SQLException {
         updateAppointment.appointmentID = "test1";
 
         // Given two concurrent updates on the same appointment
@@ -27,6 +28,7 @@ public class concurrencyTest {
         });
 
         Thread thread2 = new Thread(() -> {
+            updateAppointment.appointment.connectionNumber = 0;
             updateAppointment.patientID = "Patient2";
             updateAppointment.doctorID = "Doctor2";
             updateAppointment.apptStatus = "Status2";
