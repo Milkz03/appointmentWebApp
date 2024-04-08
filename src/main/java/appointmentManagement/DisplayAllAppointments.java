@@ -19,7 +19,7 @@ public class DisplayAllAppointments {
         }
 
         try {
-            Appointment appt = new Appointment();
+            Appointment appt = new Appointment(1);
             conn = DriverManager.getConnection(appt.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM appointments LIMIT 50");
@@ -39,7 +39,7 @@ public class DisplayAllAppointments {
                 Timestamp startTime         = rst.getTimestamp("StartTime");
                 Timestamp endTime           = rst.getTimestamp("EndTime");
 
-                Appointment appointment     = new Appointment(  patientID, clinicID, doctorID, appointmentID,
+                Appointment appointment     = new Appointment( patientID, clinicID, doctorID, appointmentID,
                                                             apptStatus, timeQueued, queueDate,
                                                             startTime, endTime, consultationType, virtualConsultation);
                 appointments.add(appointment);

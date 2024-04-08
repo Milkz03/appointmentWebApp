@@ -14,6 +14,7 @@ public class concurrencyTest {
 
         // Given two concurrent updates on the same appointment
         Thread thread1 = new Thread(() -> {
+            updateAppointment.appointment.connectionNumber = 1;
             updateAppointment.patientID = "Patient1";
             updateAppointment.doctorID = "Doctor1";
             updateAppointment.apptStatus = "Status1";

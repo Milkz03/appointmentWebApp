@@ -5,12 +5,11 @@ import java.util.*;
 
 public class deleteAppointment {
     public String appointmentID;
-
+    public Appointment appointment = new Appointment(1);
     public ArrayList<String> appointmentsIDs = new ArrayList<>();
 
     public int availableAppointments(){
         try {
-            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
@@ -39,7 +38,6 @@ public class deleteAppointment {
 
     public int deleteAppointment(){
         try {
-            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());

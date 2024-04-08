@@ -23,7 +23,8 @@ public class testAppointment {
                 System.out.println(rst.getString(10));
                 System.out.println(rst.getString(11));
             }
-
+//            Date date = new Date();
+//            System.out.println(date);
             System.out.println("Connection Successful");
             return 1;
         } catch (Exception e) {

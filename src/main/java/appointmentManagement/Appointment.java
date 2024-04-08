@@ -15,7 +15,7 @@ public class Appointment {
     public String consultationType;
     public Integer virtualConsultation;
 
-    public int connectionNumber = 1;
+    public int connectionNumber;
 
     public String connectionString(){
         if(connectionNumber == 0){
@@ -43,5 +43,5 @@ public class Appointment {
         this.virtualConsultation = virtualConsultation;
     }
 
-    public Appointment(){}
+    public Appointment(int connectionNumber){}
 }

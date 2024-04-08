@@ -16,12 +16,11 @@ public class updateAppointment {
     public String consultationType;
     public int virtualConsultation;
     public String virtualState;
-
+    public Appointment appointment = new Appointment(1);
     public ArrayList<String> appointmentsIDs = new ArrayList<>();
 
     public int availableAppointments(){
         try {
-            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
@@ -50,7 +49,6 @@ public class updateAppointment {
 
     public int infoAppointments() {
         try {
-            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
@@ -89,7 +87,6 @@ public class updateAppointment {
 
     public int updateAppointments() {
         try {
-            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
@@ -146,7 +143,6 @@ public class updateAppointment {
 
     public int startTransaction(){
         try {
-            Appointment appointment = new Appointment();
             Connection conn;
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
@@ -168,8 +164,6 @@ public class updateAppointment {
 
     public static void main(String[] args) {
         updateAppointment update = new updateAppointment();
-        Appointment appointment = new Appointment();
-        System.out.println(appointment.connectionString());
 //        update.availableAppointments();
 //        for (int i = 0; i < update.appointmentsIDs.size(); i++) {
 //            System.out.println(update.appointmentsIDs.get(i));

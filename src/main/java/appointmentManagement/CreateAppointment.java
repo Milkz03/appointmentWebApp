@@ -7,11 +7,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class CreateAppointment {
+    public int connectionNumber = 1;
 
     public boolean createNewAppointment(Appointment appointment) {
         // Database connection string
         // Uncomment if you want to insert at a particular node
-
+        appointment.connectionNumber = connectionNumber;
         String dbUrl = appointment.connectionString();
 //        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000"; // central node
 //        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&connectTimeout=3000"; // node 2
