@@ -23,7 +23,7 @@ public class submitApptTest {
             // shut down central node
 
 
-            // when it is posted to node 2 (change the link in CreateAppointment.java)
+            // when it is posted to node 2
             setTestingEngineKey(TestingEngineRegistry.TESTING_ENGINE_HTMLUNIT);    // use HtmlUnit
             beginAt("appointmentWebApp_war_exploded/createAppointment.jsp");
             assertTitleEquals("Create New Appointment");
@@ -40,7 +40,8 @@ public class submitApptTest {
             System.out.println("Open central node now");
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conncentral;
-            conncentral = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=200000&socketTimeout=200000"); // 200 seconds waiting to turn on
+            DriverManager.setLoginTimeout(200);
+            conncentral = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2"); // 200 seconds waiting to turn on
 
             // The data must also be in the central node too
             PreparedStatement pstmt = conncentral.prepareStatement("SELECT * FROM appointments " +
@@ -56,8 +57,9 @@ public class submitApptTest {
             assertTrue(rst.next());
 
             // and node 3 too
+            DriverManager.setLoginTimeout(200);
             Connection connnode3;
-            connnode3 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&connectTimeout=200000&socketTimeout=200000"); // 200 seconds waiting to turn on
+            connnode3 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2");
             pstmt = connnode3.prepareStatement("SELECT * FROM appointments " +
                     "WHERE patientID = ? AND clinicID = ? AND doctorID = ? AND appointmentID = ? AND consultationType = ?" +
                     "ORDER BY TimeQueued DESC");
@@ -107,7 +109,8 @@ public class submitApptTest {
             System.out.println("Open node 2 now");
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connnode2;
-            connnode2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&connectTimeout=200000&socketTimeout=200000"); // 200 seconds waiting to turn on
+            DriverManager.setLoginTimeout(200);
+            connnode2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2"); // 200 seconds waiting to turn on
 
             // The data must also be in the node 2 too
             PreparedStatement pstmt = connnode2.prepareStatement("SELECT * FROM appointments " +
@@ -124,7 +127,8 @@ public class submitApptTest {
 
             // and node 3 too
             Connection connnode3;
-            connnode3 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&connectTimeout=200000&socketTimeout=200000"); // 200 seconds waiting to turn on
+            DriverManager.setLoginTimeout(200);
+            connnode3 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2"); // 200 seconds waiting to turn on
             pstmt = connnode3.prepareStatement("SELECT * FROM appointments " +
                     "WHERE patientID = ? AND clinicID = ? AND doctorID = ? AND appointmentID = ? AND consultationType = ?" +
                     "ORDER BY TimeQueued DESC");
@@ -141,6 +145,164 @@ public class submitApptTest {
             System.out.println(e);
             fail();
         }
+    }
+
+    @Test
+    void failure_to_write_to_central_node_when_attempting_to_replicate_transaction_from_node_1() {
+        // given appointment details
+        String patient_id = "516B8BDD2B9DD8C0374075A5EAF63A3D";
+        String clinic_id = "BBDB6BAC289A5524F2CD9440C4AC90DD";
+        String doctor_id = "DA0F2C7272AC7F5274AC6D9E93699241";
+        String appt_id = "405F0FA8443937FD85B85AFA01DE2831";
+        String start_time = "2024-04-06T15:30";
+        String appt_type = "Consultation";
+
+        // when details are being inserted at node 1 and is being replicated to central node
+        // and central node crashes mid way
+        // but data is still being inserted at node 1
+        long t_end = System.currentTimeMillis() + 45000; // 45 seconds inserting
+        setTestingEngineKey(TestingEngineRegistry.TESTING_ENGINE_HTMLUNIT);    // use HtmlUnit
+        System.out.println("Insert starts now");
+        while (System.currentTimeMillis() < t_end) {
+            beginAt("appointmentWebApp_war_exploded/createAppointment.jsp");
+            assertTitleEquals("Create New Appointment");
+            setTextField("patientID", patient_id);
+            setTextField("clinicID", clinic_id);
+            setTextField("doctorID", doctor_id);
+            setTextField("appointmentID", appt_id);
+            setTextField("StartTime", start_time);
+            selectOptionByValue("consultationType", appt_type);
+            clickButton("create-appt-btn");
+        }
+
+
+        // then when central node comes back online
+        // turn on central node
+        int count_cenrtal_node = 0;
+        int count_node_1 = -1;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conncentral;
+            DriverManager.setLoginTimeout(200);
+            System.out.println("Turn on central node now");
+            conncentral = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2");
+
+            Thread.sleep(5000); // 5 seconds delay to let it sync
+
+            PreparedStatement pstmt = conncentral.prepareStatement("SELECT COUNT(*) FROM appointments " +
+                    "WHERE patientID = ? AND clinicID = ? AND doctorID = ? AND appointmentID = ? AND consultationType = ?");
+            pstmt.setString(1, patient_id);
+            pstmt.setString(2, clinic_id);
+            pstmt.setString(3, doctor_id);
+            pstmt.setString(4, appt_id);
+            pstmt.setString(5, appt_type);
+            ResultSet rst = pstmt.executeQuery();
+
+            rst.next();
+            count_cenrtal_node = rst.getInt(1);
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connnode1;
+            DriverManager.setLoginTimeout(200);
+            connnode1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2");
+
+            pstmt = connnode1.prepareStatement("SELECT COUNT(*) FROM appointments " +
+                    "WHERE patientID = ? AND clinicID = ? AND doctorID = ? AND appointmentID = ? AND consultationType = ?");
+            pstmt.setString(1, patient_id);
+            pstmt.setString(2, clinic_id);
+            pstmt.setString(3, doctor_id);
+            pstmt.setString(4, appt_id);
+            pstmt.setString(5, appt_type);
+            rst = pstmt.executeQuery();
+
+            rst.next();
+            count_node_1 = rst.getInt(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // central node and node 1 still have the same data.
+        assertEquals(count_cenrtal_node, count_node_1);
+    }
+
+    @Test
+    void failure_to_write_to_node_2_when_attempting_to_replicate_transaction_from_central_node() {
+        // given appointment details
+        String patient_id = "516B8BDD2B9DD8C0374075A5EAF63A3D";
+        String clinic_id = "BBDB6BAC289A5524F2CD9440C4AC90DD";
+        String doctor_id = "DA0F2C7272AC7F5274AC6D9E93699241";
+        String appt_id = "405F0FA8443937FD85B85AFA01DE2831";
+        String start_time = "2024-04-06T15:30";
+        String appt_type = "Consultation";
+
+        // when details are being inserted at node 1 and is being replicated to central node
+        // and central node crashes mid way
+        // but data is still being inserted at node 1
+        long t_end = System.currentTimeMillis() + 45000; // 45 seconds inserting
+        setTestingEngineKey(TestingEngineRegistry.TESTING_ENGINE_HTMLUNIT);    // use HtmlUnit
+        System.out.println("Insert starts now");
+        while (System.currentTimeMillis() < t_end) {
+            beginAt("appointmentWebApp_war_exploded/createAppointment.jsp");
+            assertTitleEquals("Create New Appointment");
+            setTextField("patientID", patient_id);
+            setTextField("clinicID", clinic_id);
+            setTextField("doctorID", doctor_id);
+            setTextField("appointmentID", appt_id);
+            setTextField("StartTime", start_time);
+            selectOptionByValue("consultationType", appt_type);
+            clickButton("create-appt-btn");
+        }
+
+
+        // then when central node comes back online
+        // turn on central node
+        int count_central_node = 0;
+        int count_node_1 = -1;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connnode1;
+            DriverManager.setLoginTimeout(200);
+            System.out.println("Turn on node 1 now");
+            connnode1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2");
+
+            Thread.sleep(5000); // 5 seconds delay to let it sync
+
+            PreparedStatement pstmt = connnode1.prepareStatement("SELECT COUNT(*) FROM appointments " +
+                    "WHERE patientID = ? AND clinicID = ? AND doctorID = ? AND appointmentID = ? AND consultationType = ?");
+            pstmt.setString(1, patient_id);
+            pstmt.setString(2, clinic_id);
+            pstmt.setString(3, doctor_id);
+            pstmt.setString(4, appt_id);
+            pstmt.setString(5, appt_type);
+            ResultSet rst = pstmt.executeQuery();
+
+            rst.next();
+            count_node_1 = rst.getInt(1);
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conncentral;
+            DriverManager.setLoginTimeout(200);
+            conncentral = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&autoReconnect=true&maxReconnects=100&initialTimeout=2");
+
+            pstmt = conncentral.prepareStatement("SELECT COUNT(*) FROM appointments " +
+                    "WHERE patientID = ? AND clinicID = ? AND doctorID = ? AND appointmentID = ? AND consultationType = ?");
+            pstmt.setString(1, patient_id);
+            pstmt.setString(2, clinic_id);
+            pstmt.setString(3, doctor_id);
+            pstmt.setString(4, appt_id);
+            pstmt.setString(5, appt_type);
+            rst = pstmt.executeQuery();
+
+            rst.next();
+            count_central_node = rst.getInt(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // central node and node 1 still have the same data.
+        assertEquals(count_central_node, count_node_1);
     }
 
 }
