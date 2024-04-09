@@ -13,27 +13,35 @@ import java.time.LocalDateTime;
 public class ConcurrencyTest {
     final updateAppointment updateAppointment = new updateAppointment();
     final readAppointment readAppointment = new readAppointment();
+
     @Test // #Case 1
     public void two_concurrent_reads_same_row() throws InterruptedException {
         readAppointment.appointmentID = "test1";
-        Thread threading1 = new Thread(() -> {
+
+        Thread thread1 = new Thread(() -> {
             readAppointment.appointment.connectionNumber = 0;
             readAppointment.startTransaction();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             System.out.println("Thread1: " +dtf.format(now));
-            readAppointment.infoAppointments();});
-        Thread threading2 = new Thread(() -> {
+            readAppointment.infoAppointments();
+        });
+
+        Thread thread2 = new Thread(() -> {
             readAppointment.appointment.connectionNumber = 1;
             readAppointment.startTransaction();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             System.out.println("Thread2: " +dtf.format(now));
-            readAppointment.infoAppointments();});
-        threading1.start();
-        threading2.start();
-        threading1.join();
-        threading2.join();
+            readAppointment.infoAppointments();
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
         // thread1 and thread2 reads the appointment concurrently
         Connection conn1;
         Connection conn2;
@@ -41,12 +49,15 @@ public class ConcurrencyTest {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
             conn2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb");
+
             PreparedStatement pstmt1 = conn1.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
             pstmt1.setString(1, "test1");
             ResultSet resultSet1 = pstmt1.executeQuery();
+
             PreparedStatement pstmt2 = conn2.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
             pstmt2.setString(1, "test1");
             ResultSet resultSet2 = pstmt2.executeQuery();
+
             // Then the appointment information would have the information from the second thread
             if (resultSet1.next() && resultSet2.next()) {
                 assertEquals(resultSet2.getString("patientID"), resultSet1.getString("patientID"));
@@ -58,16 +69,18 @@ public class ConcurrencyTest {
                 assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
                 assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
             } else {
-                fail("Appointment not found in the database");
-            }
+                fail("Appointment not found in the database");}
+
             pstmt1.close();
             conn1.close();
             pstmt2.close();
             conn2.close();
+
         } catch (Exception e) {
             e.printStackTrace();
             fail("An exception occurred while querying the database");
         }}
+
     @Test // Case #2
     public void two_concurrent_updates_and_read_same_row() throws InterruptedException {
         updateAppointment.appointmentID = "test1";
@@ -148,6 +161,7 @@ public class ConcurrencyTest {
             fail("An exception occurred while querying the database");
         }
     }
+
     @Test // Case #3
     public void two_concurrent_updates_same_row() throws InterruptedException {
         updateAppointment.appointmentID = "test1";
