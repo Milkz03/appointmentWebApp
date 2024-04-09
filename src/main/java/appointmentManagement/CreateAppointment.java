@@ -78,7 +78,8 @@ public class CreateAppointment {
 
         while (!validConn) {
             try {
-                Connection conn = DriverManager.getConnection(appointment.connectionString() + "&connectTimeout=5000&socketTimeout=5000");
+                DriverManager.setLoginTimeout(5);
+                Connection conn = DriverManager.getConnection(appointment.connectionString());
                 validConn = true;
                 conn.close();
             } catch(Exception e) {
