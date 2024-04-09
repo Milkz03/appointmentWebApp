@@ -10,14 +10,6 @@ public class CreateAppointment {
     public int connectionNumber = 1;
 
     public boolean createNewAppointment(Appointment appointment) {
-        // Database connection string
-        // Uncomment if you want to insert at a particular node
-        appointment.connectionNumber = connectionNumber;
-        String dbUrl = appointment.connectionString();
-//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000"; // central node
-//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&connectTimeout=3000"; // node 2
-//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&connectTimeout=3000"; // node 3
-
         // Attempt to load the JDBC driver
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -25,6 +17,15 @@ public class CreateAppointment {
             e.printStackTrace();
             return false;
         }
+
+        // Database connection string
+        // Uncomment if you want to insert at a particular node
+        appointment.connectionNumber = connectionNumber;
+        String dbUrl = getValidConnection(appointment);
+//        String dbUrl = appointment.connectionString();
+//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb&connectTimeout=3000"; // central node
+//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb&connectTimeout=3000"; // node 2
+//        String dbUrl = "jdbc:mysql://ccscloud.dlsu.edu.ph:20185/apptMCO2?user=advdb&connectTimeout=3000"; // node 3
 
         // Try-with-resources statement to ensure proper closure of resources
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -70,5 +71,26 @@ public class CreateAppointment {
             e.printStackTrace();
             return false; // Return false if any SQLException occurs
         }
+    }
+
+    private String getValidConnection(Appointment appointment) {
+        boolean validConn = false;
+
+        while (!validConn) {
+            try {
+                Connection conn = DriverManager.getConnection(appointment.connectionString() + "&connectTimeout=5000&socketTimeout=5000");
+                validConn = true;
+                conn.close();
+            } catch(Exception e) {
+                if (appointment.connectionNumber >= 2) {
+                    appointment.connectionNumber = 0;
+                }
+                else {
+                    appointment.connectionNumber++;
+                }
+            }
+        }
+
+        return appointment.connectionString();
     }
 }
