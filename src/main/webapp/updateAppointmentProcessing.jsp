@@ -37,9 +37,9 @@
 
         int result = 0;
         if(UpdateC.checkTransaction() == 1){
+            UpdateC.resetEditTransaction();
             result = UpdateC.updateAppointments();
             UpdateC.commitTransaction();
-            UpdateC.resetEditTransaction();
         } else { %>
             <h1>Failed to Update. Another transaction in place.</h1>
             <a href="updateAppointment.jsp"><button>Go Back to Update Appointment Selection</button></a>

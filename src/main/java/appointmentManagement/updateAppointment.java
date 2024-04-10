@@ -74,7 +74,13 @@ public class updateAppointment {
                 }
             }
 
+            PreparedStatement pstmtEdit = conn.prepareStatement("UPDATE appointments SET editAppointment=? WHERE appointmentID=?");
+            pstmtEdit.setInt(1, 1);
+            pstmtEdit.setString(2, appointmentID);
+            pstmtEdit.executeUpdate();
+
             pstmt.close();
+            pstmtEdit.close();
             conn.close();
 
             System.out.println("Connection Successful");
@@ -92,7 +98,7 @@ public class updateAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
 
-            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET patientID=?, doctorID=?, apptStatus=?, TimeQueued=?, StartTime=?, EndTime=?, consultationType=?, virtualConsultation=?, editAppointment=? WHERE appointmentID=?");
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET patientID=?, doctorID=?, apptStatus=?, TimeQueued=?, StartTime=?, EndTime=?, consultationType=?, virtualConsultation=? WHERE appointmentID=?");
             pstmt.setString(1, patientID);
             pstmt.setString(2, doctorID);
             pstmt.setString(3, apptStatus);
@@ -101,8 +107,7 @@ public class updateAppointment {
             pstmt.setTimestamp(6, fixDateFormat(endTime));
             pstmt.setString(7, consultationType);
             pstmt.setInt(8, virtualConsultation);
-            pstmt.setInt(9,1);
-            pstmt.setString(10, appointmentID);
+            pstmt.setString(9, appointmentID);
 
             pstmt.executeUpdate();
 
@@ -213,7 +218,7 @@ public class updateAppointment {
             ResultSet rst = pstmt.executeQuery();
 
             while(rst.next()) {
-                if(rst.getInt("editAppointment") == 0){
+                if(rst.getInt("editAppointment") == 1){
                     System.out.println("No conflicting transaction");
                     pstmt.close();
                     conn.close();
