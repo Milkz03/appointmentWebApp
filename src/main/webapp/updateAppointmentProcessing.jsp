@@ -40,9 +40,15 @@
         UpdateC.commitTransaction();
         if (result == 0) { %>
         <h1>Fail</h1>
+    <div class="row">
+        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
+    </div>
         <% }
         else { %>
         <h1>Pass</h1>
+    <div class="row">
+        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
+    </div>
         <% } %>
 
 </form>
