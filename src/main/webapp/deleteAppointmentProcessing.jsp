@@ -12,16 +12,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<form>
+<form action="index.jsp">
     <jsp:useBean id="DeleteB" class="appointmentManagement.deleteAppointment" scope="session"/>
     <%
         DeleteB.appointmentID = request.getParameter("appointmentID");
         int result = DeleteB.deleteAppointment();
         if (result == 0) { %>
     <h1>Fail</h1>
+    <div class="row">
+        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
+    </div>
     <% }
     else { %>
     <h1>Pass</h1>
+    <div class="row">
+        <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
+    </div>
     <% } %>
 </form>
 </body>

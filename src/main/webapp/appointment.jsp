@@ -20,7 +20,9 @@
     <%  ReadAppointment.startTransaction();
         ReadAppointment.appointmentID = request.getParameter("appointmentID");
         ReadAppointment.infoAppointments();
-        session.setAttribute("appointmentID", ReadAppointment.appointmentID);%>
+        session.setAttribute("appointmentID", ReadAppointment.appointmentID);
+        ReadAppointment.commitTransaction();
+    %>
     <div class="row">
         <div class="col">Details</div>
     </div>

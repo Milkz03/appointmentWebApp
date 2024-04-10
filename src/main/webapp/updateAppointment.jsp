@@ -38,9 +38,6 @@
     </div>
     <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Check Details</button>
 </form>
-<form>
-    <button type="submit" class="btn btn-primary mx-auto my-2 w-100">See All Appointments</button>
-</form>
 
 </body>
 </html>

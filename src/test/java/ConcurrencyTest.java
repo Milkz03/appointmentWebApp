@@ -11,12 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
 
 public class ConcurrencyTest {
-    final updateAppointment updateAppointment = new updateAppointment();
-    final readAppointment readAppointment = new readAppointment();
+    updateAppointment updateAppointment = new updateAppointment();
+    readAppointment readAppointment = new readAppointment();
 
     @Test // #Case 1
     public void two_concurrent_reads_same_row() throws InterruptedException {
         readAppointment.appointmentID = "test1";
+        readAppointment readAppointment1 = new readAppointment();
+        readAppointment1.appointmentID = "test1";
 
         Thread thread1 = new Thread(() -> {
             readAppointment.appointment.connectionNumber = 0;
@@ -28,12 +30,12 @@ public class ConcurrencyTest {
         });
 
         Thread thread2 = new Thread(() -> {
-            readAppointment.appointment.connectionNumber = 1;
-            readAppointment.startTransaction();
+            readAppointment1.appointment.connectionNumber = 1;
+            readAppointment1.startTransaction();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             System.out.println("Thread2: " +dtf.format(now));
-            readAppointment.infoAppointments();
+            readAppointment1.infoAppointments();
         });
 
         thread1.start();
@@ -71,6 +73,26 @@ public class ConcurrencyTest {
             } else {
                 fail("Appointment not found in the database");}
 
+            String patientID = resultSet2.getString("patientID");
+            String doctorID = resultSet2.getString("doctorID");
+            String apptStatus = resultSet2.getString("apptStatus");
+            String timeQueued = resultSet2.getString("TimeQueued");
+            String startTime = resultSet2.getString("StartTime");
+            String endTime = resultSet2.getString("EndTime");
+            String consultationType = resultSet2.getString("consultationType");
+            int virtualConsultation = resultSet2.getInt("virtualConsultation");
+
+            System.out.println("test1"
+                    + "patientID: " + patientID + " "
+                    + "doctorID: " + doctorID + " "
+                    + "apptStatus: " + apptStatus + " "
+                    + "timeQueued: " + timeQueued+ " "
+                    + "startTime: " + startTime+ " "
+                    + "endTime: " + endTime+ " "
+                    + "consultationType: " + consultationType+ " "
+                    + "virtualConsultation: " + virtualConsultation
+            );
+
             pstmt1.close();
             conn1.close();
             pstmt2.close();
@@ -79,12 +101,15 @@ public class ConcurrencyTest {
         } catch (Exception e) {
             e.printStackTrace();
             fail("An exception occurred while querying the database");
-        }}
+        }
+    }
 
     @Test // Case #2
     public void two_concurrent_updates_and_read_same_row() throws InterruptedException {
         updateAppointment.appointmentID = "test1";
         readAppointment.appointmentID = "test1";
+
+        String test_forThread1 = "Patient1Case2";
 
         // Given two concurrent transactions
         // one updates
@@ -92,7 +117,7 @@ public class ConcurrencyTest {
             updateAppointment.appointment.connectionNumber = 1;
             updateAppointment.startTransaction();
             updateAppointment.infoAppointments();
-            updateAppointment.patientID = "Patient1";
+            updateAppointment.patientID = test_forThread1;
             updateAppointment.doctorID = "Doctor1";
             updateAppointment.apptStatus = "Status1";
             updateAppointment.timeQueued = "2024-04-08T10:00:00";
@@ -105,6 +130,7 @@ public class ConcurrencyTest {
             System.out.println("Thread1: " + dtf.format(now));
             updateAppointment.updateAppointments();
         });
+
         // the other reads
         Thread thread2 = new Thread(() -> {
             readAppointment.appointment.connectionNumber = 0;
@@ -147,9 +173,31 @@ public class ConcurrencyTest {
                 assertEquals(resultSet2.getString("EndTime"), resultSet1.getString("EndTime"));
                 assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
                 assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
+
+                assertEquals( test_forThread1, resultSet2.getString("patientID"));
             } else {
                 fail("Appointment not found in the database");
             }
+
+            String patientID = resultSet2.getString("patientID");
+            String doctorID = resultSet2.getString("doctorID");
+            String apptStatus = resultSet2.getString("apptStatus");
+            String timeQueued = resultSet2.getString("TimeQueued");
+            String startTime = resultSet2.getString("StartTime");
+            String endTime = resultSet2.getString("EndTime");
+            String consultationType = resultSet2.getString("consultationType");
+            int virtualConsultation = resultSet2.getInt("virtualConsultation");
+
+            System.out.println("test1"
+                    + "patientID: " + patientID + " "
+                    + "doctorID: " + doctorID + " "
+                    + "apptStatus: " + apptStatus + " "
+                    + "timeQueued: " + timeQueued+ " "
+                    + "startTime: " + startTime+ " "
+                    + "endTime: " + endTime+ " "
+                    + "consultationType: " + consultationType+ " "
+                    + "virtualConsultation: " + virtualConsultation
+            );
 
             pstmt1.close();
             conn1.close();
@@ -164,14 +212,20 @@ public class ConcurrencyTest {
 
     @Test // Case #3
     public void two_concurrent_updates_same_row() throws InterruptedException {
+        updateAppointment updateAppointment1 = new updateAppointment();
+
+        String test_ForThread1 = "PatientA";
+        String test_ForThread2 = "PatientB";
+
         updateAppointment.appointmentID = "test1";
+        updateAppointment1.appointmentID ="test1";
 
         // Given two concurrent updates on the same appointment
         Thread thread1 = new Thread(() -> {
             updateAppointment.appointment.connectionNumber = 1;
             updateAppointment.startTransaction();
             updateAppointment.infoAppointments();
-            updateAppointment.patientID = "Patient1";
+            updateAppointment.patientID = test_ForThread1;
             updateAppointment.doctorID = "Doctor1";
             updateAppointment.apptStatus = "Status1";
             updateAppointment.timeQueued = "2024-04-08T10:00:00";
@@ -179,31 +233,49 @@ public class ConcurrencyTest {
             updateAppointment.endTime = "2024-04-08T11:00:00";
             updateAppointment.consultationType = "ConsultationType1";
             updateAppointment.virtualConsultation = 1;
-            updateAppointment.updateAppointments();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread1: " + dtf.format(now));
+            if(updateAppointment.checkTransaction() == 1){
+                updateAppointment.resetEditTransaction();
+                updateAppointment.updateAppointments();
+                updateAppointment.commitTransaction();
+            } else {
+                System.out.println("T1: Fail");
+            }
         });
 
         Thread thread2 = new Thread(() -> {
-            updateAppointment.appointment.connectionNumber = 0;
-            updateAppointment.startTransaction();
-            updateAppointment.infoAppointments();
-            updateAppointment.patientID = "Patient2";
-            updateAppointment.doctorID = "Doctor2";
-            updateAppointment.apptStatus = "Status2";
-            updateAppointment.timeQueued = "2024-04-08T11:00:00";
-            updateAppointment.startTime = "2024-04-08T11:30:00";
-            updateAppointment.endTime = "2024-04-08T12:00:00";
-            updateAppointment.consultationType = "ConsultationType2";
-            updateAppointment.virtualConsultation = 0;
-            updateAppointment.updateAppointments();
+            updateAppointment1.appointment.connectionNumber = 0;
+            updateAppointment1.startTransaction();
+            updateAppointment1.infoAppointments();
+            updateAppointment1.patientID = test_ForThread2;
+            updateAppointment1.doctorID = "Doctor2";
+            updateAppointment1.apptStatus = "Status2";
+            updateAppointment1.timeQueued = "2024-04-08T11:00:00";
+            updateAppointment1.startTime = "2024-04-08T11:30:00";
+            updateAppointment1.endTime = "2024-04-08T12:00:00";
+            updateAppointment1.consultationType = "ConsultationType2";
+            updateAppointment1.virtualConsultation = 0;
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread2: " + dtf.format(now));
+            if(updateAppointment1.checkTransaction() == 1){
+                updateAppointment1.resetEditTransaction();
+                updateAppointment1.updateAppointments();
+                updateAppointment1.commitTransaction();
+            } else {
+                System.out.println("T2: Fail");
+            }
         });
 
         thread1.start();
+        Thread.sleep(200);
         thread2.start();
 
         thread1.join();
         thread2.join();
 
-        // thread1 updates the appointment -> once done, thread2 reads the appointment
         Connection conn1;
         Connection conn2;
         try {
@@ -229,9 +301,34 @@ public class ConcurrencyTest {
                 assertEquals(resultSet2.getString("EndTime"), resultSet1.getString("EndTime"));
                 assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
                 assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
+
+                boolean samePatientID = resultSet2.getString("patientID").equals(test_ForThread1) ||
+                        resultSet2.getString("patientID").equals(test_ForThread2);
+
+                assertTrue(samePatientID, "Update is successful.");
             } else {
                 fail("Appointment not found in the database");
             }
+
+            String patientID = resultSet2.getString("patientID");
+            String doctorID = resultSet2.getString("doctorID");
+            String apptStatus = resultSet2.getString("apptStatus");
+            String timeQueued = resultSet2.getString("TimeQueued");
+            String startTime = resultSet2.getString("StartTime");
+            String endTime = resultSet2.getString("EndTime");
+            String consultationType = resultSet2.getString("consultationType");
+            int virtualConsultation = resultSet2.getInt("virtualConsultation");
+
+            System.out.println("test1"
+                    + "patientID: " + patientID + " "
+                    + "doctorID: " + doctorID + " "
+                    + "apptStatus: " + apptStatus + " "
+                    + "timeQueued: " + timeQueued+ " "
+                    + "startTime: " + startTime+ " "
+                    + "endTime: " + endTime+ " "
+                    + "consultationType: " + consultationType+ " "
+                    + "virtualConsultation: " + virtualConsultation
+            );
 
             pstmt1.close();
             conn1.close();
@@ -244,4 +341,157 @@ public class ConcurrencyTest {
         }
     }
 
+    @Test // #Case N
+    public void nonrepeatableread() throws InterruptedException {
+        readAppointment.appointmentID = "test2";
+        updateAppointment.appointmentID = "test2";
+
+        final int[] virtualConsultationT1R1 = new int[1];
+        final int[] virtualConsultationT2R1 = new int[1];
+        final int[] virtualConsultationT2R2 = new int[1];
+
+        Thread thread1 = new Thread(() -> {
+            updateAppointment.appointment.connectionNumber = 0;
+            updateAppointment.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread1: " +dtf.format(now));
+            updateAppointment.infoAppointments();
+            virtualConsultationT1R1[0] = updateAppointment.virtualConsultation;
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            updateAppointment.patientID = "test2";
+            updateAppointment.doctorID = "test2";
+            updateAppointment.apptStatus = "Queued";
+            updateAppointment.timeQueued = "2009-04-25T05:49:00";
+            updateAppointment.startTime = "2009-04-25T05:49:00";
+            updateAppointment.endTime = "";
+            updateAppointment.consultationType = "Consultation";
+            updateAppointment.virtualConsultation = 222;
+            updateAppointment.updateAppointments();
+        });
+
+        Thread thread2 = new Thread(() -> {
+            readAppointment.appointment.connectionNumber = 1;
+            readAppointment.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread2: " +dtf.format(now));
+            readAppointment.infoAppointments();
+            virtualConsultationT2R1[0] = readAppointment.virtualConsultation;
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            readAppointment.infoAppointments();
+            virtualConsultationT2R2[0] = readAppointment.virtualConsultation;
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        assertEquals(virtualConsultationT1R1[0], virtualConsultationT2R1[0]);
+        assertEquals(virtualConsultationT2R1[0], virtualConsultationT2R2[0]);
+        assertEquals(virtualConsultationT1R1[0], virtualConsultationT2R2[0]);
+
+//        System.out.println("T1R1: " + virtualConsultationT1R1[0]);
+//        System.out.println("T2R1: " + virtualConsultationT2R1[0]);
+//        System.out.println("T2R2: " + virtualConsultationT2R2[0]);
+
+    }
+
+    @Test
+    public void lostupdate() throws InterruptedException {
+        updateAppointment updateAppointment1 = new updateAppointment();
+        updateAppointment updateAppointment2 = new updateAppointment();
+        updateAppointment1.appointmentID = "test2";
+        updateAppointment2.appointmentID = "test2";
+
+        final int[] virtualConsultationT1R1 = new int[1];
+        final int[] virtualConsultationT1R2 = new int[1];
+        final int[] virtualConsultationT2R1 = new int[1];
+        final int[] virtualConsultationT2R2 = new int[1];
+
+        Thread thread1 = new Thread(() -> {
+            updateAppointment1.appointment.connectionNumber = 0;
+            updateAppointment1.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread1: " +dtf.format(now));
+            updateAppointment1.infoAppointments();
+            virtualConsultationT1R1[0] = updateAppointment1.virtualConsultation;
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            updateAppointment1.patientID = "test2";
+            updateAppointment1.doctorID = "test2";
+            updateAppointment1.apptStatus = "Queued";
+            updateAppointment1.timeQueued = "2009-04-25T05:49:00";
+            updateAppointment1.startTime = "2009-04-25T05:49:00";
+            updateAppointment1.endTime = "";
+            updateAppointment1.consultationType = "Consultation";
+//            System.out.println("Value to use: " + (virtualConsultationT1R1[0] + 100) + " " + dtf.format(now));
+            updateAppointment1.virtualConsultation = updateAppointment1.virtualConsultation + 20;
+            updateAppointment1.updateAppointments();
+            updateAppointment1.infoAppointments();
+            virtualConsultationT1R2[0] = updateAppointment1.virtualConsultation;
+            updateAppointment1.commitTransaction();
+        });
+
+        Thread thread2 = new Thread(() -> {
+            updateAppointment2.appointment.connectionNumber = 1;
+            updateAppointment2.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread2: " +dtf.format(now));
+            updateAppointment2.infoAppointments();
+            virtualConsultationT2R1[0] = updateAppointment2.virtualConsultation;
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            updateAppointment2.patientID = "test2";
+            updateAppointment2.doctorID = "test2";
+            updateAppointment2.apptStatus = "Queued";
+            updateAppointment2.timeQueued = "2009-04-25T05:49:00";
+            updateAppointment2.startTime = "2009-04-25T05:49:00";
+            updateAppointment2.endTime = "";
+            updateAppointment2.consultationType = "Consultation";
+//            System.out.println("Value to use: " + (virtualConsultationT2R1[0] - 10) + " " + dtf.format(now));
+            updateAppointment2.virtualConsultation = updateAppointment2.virtualConsultation + 10;
+            updateAppointment2.updateAppointments();
+            updateAppointment2.infoAppointments();
+            virtualConsultationT2R2[0] = updateAppointment2.virtualConsultation;
+            updateAppointment2.commitTransaction();
+        });
+
+
+        thread2.start();
+        Thread.sleep(1000);
+        thread1.start();
+
+
+        thread1.join();
+        thread2.join();
+//
+//        assertEquals(virtualConsultationT1R1[0], virtualConsultationT2R1[0]);
+//        assertEquals(virtualConsultationT2R1[0], virtualConsultationT2R2[0]);
+//        assertEquals(virtualConsultationT1R1[0], virtualConsultationT2R2[0]);
+
+        System.out.println("T1R1: " + virtualConsultationT1R1[0]);
+        System.out.println("T1R2: " + virtualConsultationT1R2[0]);
+        System.out.println("T2R1: " + virtualConsultationT2R1[0]);
+        System.out.println("T2R2: " + virtualConsultationT2R2[0]);
+
+    }
 }
