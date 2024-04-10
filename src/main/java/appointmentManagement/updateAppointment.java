@@ -255,7 +255,6 @@ public class updateAppointment {
 
             pstmt.executeUpdate();
 
-            conn.commit();
             pstmt.close();
             conn.close();
 
