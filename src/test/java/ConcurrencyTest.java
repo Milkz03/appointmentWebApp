@@ -393,4 +393,88 @@ public class ConcurrencyTest {
 
     }
 
+    @Test
+    public void lostupdate() throws InterruptedException {
+        updateAppointment updateAppointment1 = new updateAppointment();
+        updateAppointment updateAppointment2 = new updateAppointment();
+        updateAppointment1.appointmentID = "test2";
+        updateAppointment2.appointmentID = "test2";
+
+        final int[] virtualConsultationT1R1 = new int[1];
+        final int[] virtualConsultationT1R2 = new int[1];
+        final int[] virtualConsultationT2R1 = new int[1];
+        final int[] virtualConsultationT2R2 = new int[1];
+
+        Thread thread1 = new Thread(() -> {
+            updateAppointment1.appointment.connectionNumber = 0;
+            updateAppointment1.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread1: " +dtf.format(now));
+            updateAppointment1.infoAppointments();
+            virtualConsultationT1R1[0] = updateAppointment1.virtualConsultation;
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            updateAppointment1.patientID = "test2";
+            updateAppointment1.doctorID = "test2";
+            updateAppointment1.apptStatus = "Queued";
+            updateAppointment1.timeQueued = "2009-04-25T05:49:00";
+            updateAppointment1.startTime = "2009-04-25T05:49:00";
+            updateAppointment1.endTime = "";
+            updateAppointment1.consultationType = "Consultation";
+            System.out.println("Value to use: " + (virtualConsultationT1R1[0] + 100) + " " + dtf.format(now));
+            updateAppointment1.virtualConsultation = virtualConsultationT1R1[0] + 100;
+            updateAppointment1.updateAppointments();
+            updateAppointment1.infoAppointments();
+            virtualConsultationT1R2[0] = updateAppointment1.virtualConsultation;
+            updateAppointment1.commitTransaction();
+        });
+
+        Thread thread2 = new Thread(() -> {
+            updateAppointment2.appointment.connectionNumber = 1;
+            updateAppointment2.startTransaction();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Thread2: " +dtf.format(now));
+            updateAppointment2.infoAppointments();
+            virtualConsultationT2R1[0] = updateAppointment2.virtualConsultation;
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            updateAppointment2.patientID = "test2";
+            updateAppointment2.doctorID = "test2";
+            updateAppointment2.apptStatus = "Queued";
+            updateAppointment2.timeQueued = "2009-04-25T05:49:00";
+            updateAppointment2.startTime = "2009-04-25T05:49:00";
+            updateAppointment2.endTime = "";
+            updateAppointment2.consultationType = "Consultation";
+            System.out.println("Value to use: " + (virtualConsultationT2R1[0] - 10) + " " + dtf.format(now));
+            updateAppointment2.virtualConsultation = virtualConsultationT2R1[0] - 10;
+            updateAppointment2.updateAppointments();
+            updateAppointment2.infoAppointments();
+            virtualConsultationT2R2[0] = updateAppointment2.virtualConsultation;
+            updateAppointment2.commitTransaction();
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+//
+//        assertEquals(virtualConsultationT1R1[0], virtualConsultationT2R1[0]);
+//        assertEquals(virtualConsultationT2R1[0], virtualConsultationT2R2[0]);
+//        assertEquals(virtualConsultationT1R1[0], virtualConsultationT2R2[0]);
+
+        System.out.println("T1R1: " + virtualConsultationT1R1[0]);
+        System.out.println("T1R2: " + virtualConsultationT1R2[0]);
+        System.out.println("T2R1: " + virtualConsultationT2R1[0]);
+        System.out.println("T2R2: " + virtualConsultationT2R2[0]);
+
+    }
 }

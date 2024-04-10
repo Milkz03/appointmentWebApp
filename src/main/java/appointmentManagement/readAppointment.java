@@ -71,11 +71,7 @@ public class readAppointment {
                 }
             }
 
-            PreparedStatement pstmtCom = conn.prepareStatement("COMMIT");
-            pstmtCom.executeUpdate();
-
             pstmt.close();
-            pstmtCom.close();
             conn.close();
 
             System.out.println("Connection Successful");
@@ -94,6 +90,27 @@ public class readAppointment {
             conn = DriverManager.getConnection(appointment.connectionString());
 
             PreparedStatement pstmt = conn.prepareStatement("START TRANSACTION");
+            pstmt.executeUpdate();
+
+            pstmt.close();
+            conn.close();
+
+            System.out.println("Connection Successful");
+            return 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int commitTransaction(){
+        try {
+            Connection conn;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(appointment.connectionString());
+
+            PreparedStatement pstmt = conn.prepareStatement("COMMIT");
             pstmt.executeUpdate();
 
             pstmt.close();
