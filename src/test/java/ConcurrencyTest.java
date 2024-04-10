@@ -214,8 +214,8 @@ public class ConcurrencyTest {
     public void two_concurrent_updates_same_row() throws InterruptedException {
         updateAppointment updateAppointment1 = new updateAppointment();
 
-        String test_ForThread1 = "PatientA2";
-        String test_ForThread2 = "PatientB2";
+        String test_ForThread1 = "PatientA";
+        String test_ForThread2 = "PatientB";
 
         updateAppointment.appointmentID = "test1";
         updateAppointment1.appointmentID ="test1";
@@ -276,70 +276,69 @@ public class ConcurrencyTest {
         thread1.join();
         thread2.join();
 
-        // thread1 updates the appointment -> once done, thread2 reads the appointment
-//        Connection conn1;
-//        Connection conn2;
-//        try {
-//            Class.forName("com.mysql.cj.jdbc.Driver");
-//            conn1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
-//            conn2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb");
-//
-//            PreparedStatement pstmt1 = conn1.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
-//            pstmt1.setString(1, "test1");
-//            ResultSet resultSet1 = pstmt1.executeQuery();
-//
-//            PreparedStatement pstmt2 = conn2.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
-//            pstmt2.setString(1, "test1");
-//            ResultSet resultSet2 = pstmt2.executeQuery();
-//
-//            // Then the appointment information would have the information from the second thread
-//            if (resultSet1.next() && resultSet2.next()) {
-//                assertEquals(resultSet2.getString("patientID"), resultSet1.getString("patientID"));
-//                assertEquals(resultSet2.getString("doctorID"), resultSet1.getString("doctorID"));
-//                assertEquals(resultSet2.getString("TimeQueued"), resultSet1.getString("TimeQueued"));
-//                assertEquals(resultSet2.getString("QueueDate"), resultSet1.getString("QueueDate"));
-//                assertEquals(resultSet2.getString("StartTime"), resultSet1.getString("StartTime"));
-//                assertEquals(resultSet2.getString("EndTime"), resultSet1.getString("EndTime"));
-//                assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
-//                assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
-//
-//                boolean samePatientID = resultSet2.getString("patientID").equals(test_ForThread1) ||
-//                        resultSet2.getString("patientID").equals(test_ForThread2);
-//
-//                assertTrue(samePatientID, "Update is successful.");
-//            } else {
-//                fail("Appointment not found in the database");
-//            }
-//
-//            String patientID = resultSet2.getString("patientID");
-//            String doctorID = resultSet2.getString("doctorID");
-//            String apptStatus = resultSet2.getString("apptStatus");
-//            String timeQueued = resultSet2.getString("TimeQueued");
-//            String startTime = resultSet2.getString("StartTime");
-//            String endTime = resultSet2.getString("EndTime");
-//            String consultationType = resultSet2.getString("consultationType");
-//            int virtualConsultation = resultSet2.getInt("virtualConsultation");
-//
-//            System.out.println("test1"
-//                    + "patientID: " + patientID + " "
-//                    + "doctorID: " + doctorID + " "
-//                    + "apptStatus: " + apptStatus + " "
-//                    + "timeQueued: " + timeQueued+ " "
-//                    + "startTime: " + startTime+ " "
-//                    + "endTime: " + endTime+ " "
-//                    + "consultationType: " + consultationType+ " "
-//                    + "virtualConsultation: " + virtualConsultation
-//            );
-//
-//            pstmt1.close();
-//            conn1.close();
-//            pstmt2.close();
-//            conn2.close();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            fail("An exception occurred while querying the database");
-//        }
+        Connection conn1;
+        Connection conn2;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn1 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20183/apptMCO2?user=advdb");
+            conn2 = DriverManager.getConnection("jdbc:mysql://ccscloud.dlsu.edu.ph:20184/apptMCO2?user=advdb");
+
+            PreparedStatement pstmt1 = conn1.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            pstmt1.setString(1, "test1");
+            ResultSet resultSet1 = pstmt1.executeQuery();
+
+            PreparedStatement pstmt2 = conn2.prepareStatement("SELECT * FROM appointments WHERE appointmentID=?");
+            pstmt2.setString(1, "test1");
+            ResultSet resultSet2 = pstmt2.executeQuery();
+
+            // Then the appointment information would have the information from the second thread
+            if (resultSet1.next() && resultSet2.next()) {
+                assertEquals(resultSet2.getString("patientID"), resultSet1.getString("patientID"));
+                assertEquals(resultSet2.getString("doctorID"), resultSet1.getString("doctorID"));
+                assertEquals(resultSet2.getString("TimeQueued"), resultSet1.getString("TimeQueued"));
+                assertEquals(resultSet2.getString("QueueDate"), resultSet1.getString("QueueDate"));
+                assertEquals(resultSet2.getString("StartTime"), resultSet1.getString("StartTime"));
+                assertEquals(resultSet2.getString("EndTime"), resultSet1.getString("EndTime"));
+                assertEquals(resultSet2.getString("consultationType"), resultSet1.getString("consultationType"));
+                assertEquals(resultSet2.getString("virtualConsultation"), resultSet1.getString("virtualConsultation"));
+
+                boolean samePatientID = resultSet2.getString("patientID").equals(test_ForThread1) ||
+                        resultSet2.getString("patientID").equals(test_ForThread2);
+
+                assertTrue(samePatientID, "Update is successful.");
+            } else {
+                fail("Appointment not found in the database");
+            }
+
+            String patientID = resultSet2.getString("patientID");
+            String doctorID = resultSet2.getString("doctorID");
+            String apptStatus = resultSet2.getString("apptStatus");
+            String timeQueued = resultSet2.getString("TimeQueued");
+            String startTime = resultSet2.getString("StartTime");
+            String endTime = resultSet2.getString("EndTime");
+            String consultationType = resultSet2.getString("consultationType");
+            int virtualConsultation = resultSet2.getInt("virtualConsultation");
+
+            System.out.println("test1"
+                    + "patientID: " + patientID + " "
+                    + "doctorID: " + doctorID + " "
+                    + "apptStatus: " + apptStatus + " "
+                    + "timeQueued: " + timeQueued+ " "
+                    + "startTime: " + startTime+ " "
+                    + "endTime: " + endTime+ " "
+                    + "consultationType: " + consultationType+ " "
+                    + "virtualConsultation: " + virtualConsultation
+            );
+
+            pstmt1.close();
+            conn1.close();
+            pstmt2.close();
+            conn2.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("An exception occurred while querying the database");
+        }
     }
 
     @Test // #Case N
