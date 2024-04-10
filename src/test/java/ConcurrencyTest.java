@@ -101,7 +101,8 @@ public class ConcurrencyTest {
         } catch (Exception e) {
             e.printStackTrace();
             fail("An exception occurred while querying the database");
-        }}
+        }
+    }
 
     @Test // Case #2
     public void two_concurrent_updates_and_read_same_row() throws InterruptedException {
@@ -129,6 +130,7 @@ public class ConcurrencyTest {
             System.out.println("Thread1: " + dtf.format(now));
             updateAppointment.updateAppointments();
         });
+
         // the other reads
         Thread thread2 = new Thread(() -> {
             readAppointment.appointment.connectionNumber = 0;
@@ -425,8 +427,8 @@ public class ConcurrencyTest {
             updateAppointment1.startTime = "2009-04-25T05:49:00";
             updateAppointment1.endTime = "";
             updateAppointment1.consultationType = "Consultation";
-            System.out.println("Value to use: " + (virtualConsultationT1R1[0] + 100) + " " + dtf.format(now));
-            updateAppointment1.virtualConsultation = virtualConsultationT1R1[0] + 100;
+//            System.out.println("Value to use: " + (virtualConsultationT1R1[0] + 100) + " " + dtf.format(now));
+            updateAppointment1.virtualConsultation = updateAppointment1.virtualConsultation + 20;
             updateAppointment1.updateAppointments();
             updateAppointment1.infoAppointments();
             virtualConsultationT1R2[0] = updateAppointment1.virtualConsultation;
@@ -453,16 +455,19 @@ public class ConcurrencyTest {
             updateAppointment2.startTime = "2009-04-25T05:49:00";
             updateAppointment2.endTime = "";
             updateAppointment2.consultationType = "Consultation";
-            System.out.println("Value to use: " + (virtualConsultationT2R1[0] - 10) + " " + dtf.format(now));
-            updateAppointment2.virtualConsultation = virtualConsultationT2R1[0] - 10;
+//            System.out.println("Value to use: " + (virtualConsultationT2R1[0] - 10) + " " + dtf.format(now));
+            updateAppointment2.virtualConsultation = updateAppointment2.virtualConsultation + 10;
             updateAppointment2.updateAppointments();
             updateAppointment2.infoAppointments();
             virtualConsultationT2R2[0] = updateAppointment2.virtualConsultation;
             updateAppointment2.commitTransaction();
         });
 
-        thread1.start();
+
         thread2.start();
+        Thread.sleep(1000);
+        thread1.start();
+
 
         thread1.join();
         thread2.join();

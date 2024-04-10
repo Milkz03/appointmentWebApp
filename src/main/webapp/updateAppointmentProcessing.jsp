@@ -37,6 +37,7 @@
 
 
         int result = UpdateC.updateAppointments();
+        UpdateC.commitTransaction();
         if (result == 0) { %>
         <h1>Fail</h1>
         <% }
