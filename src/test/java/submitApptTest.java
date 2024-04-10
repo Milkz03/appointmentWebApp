@@ -1,6 +1,9 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static net.sourceforge.jwebunit.junit.JWebUnit.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,8 +11,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import net.sourceforge.jwebunit.util.TestingEngineRegistry;
 
 public class submitApptTest {
+    @BeforeEach
+    void displayCurrentTime() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("Current Time: " +dtf.format(now));
+        System.out.println("Global Failure and Recovery");
+    }
+
     @Test
     void central_node_unavailable_during_transaction_but_eventually_comes_online() {
+        System.out.println("Case#1 Run#3");
         try{
             // given an appointment with details
             String patient_id = "516B8BDD2B9DD8C0374075A5EAF63A3D";
@@ -80,6 +92,7 @@ public class submitApptTest {
 
     @Test
     void node_2_unavailable_during_transaction_but_eventually_comes_online() {
+        System.out.println("Case#2 Run#3");
         try{
             // given an appointment with details
             String patient_id = "516B8BDD2B9DD8C0374075A5EAF63A3D";
@@ -149,6 +162,7 @@ public class submitApptTest {
 
     @Test
     void failure_to_write_to_central_node_when_attempting_to_replicate_transaction_from_node_1() {
+        System.out.println("Case#3 Run#3");
         // given appointment details
         String patient_id = "516B8BDD2B9DD8C0374075A5EAF63A3D";
         String clinic_id = "BBDB6BAC289A5524F2CD9440C4AC90DD";
@@ -227,7 +241,8 @@ public class submitApptTest {
     }
 
     @Test
-    void failure_to_write_to_node_2_when_attempting_to_replicate_transaction_from_central_node() {
+    void failure_to_write_to_node_1_when_attempting_to_replicate_transaction_from_central_node() {
+        System.out.println("Case#4 Run#3");
         // given appointment details
         String patient_id = "516B8BDD2B9DD8C0374075A5EAF63A3D";
         String clinic_id = "BBDB6BAC289A5524F2CD9440C4AC90DD";
