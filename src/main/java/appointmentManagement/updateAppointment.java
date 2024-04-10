@@ -15,6 +15,7 @@ public class updateAppointment {
     public String endTime;
     public String consultationType;
     public int virtualConsultation;
+    public int editAppointment;
     public String virtualState;
     public Appointment appointment = new Appointment(1);
     public ArrayList<String> appointmentsIDs = new ArrayList<>();
@@ -91,7 +92,7 @@ public class updateAppointment {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(appointment.connectionString());
 
-            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET patientID=?, doctorID=?, apptStatus=?, TimeQueued=?, StartTime=?, EndTime=?, consultationType=?, virtualConsultation=? WHERE appointmentID=?");
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET patientID=?, doctorID=?, apptStatus=?, TimeQueued=?, StartTime=?, EndTime=?, consultationType=?, virtualConsultation=?, editAppointment=? WHERE appointmentID=?");
             pstmt.setString(1, patientID);
             pstmt.setString(2, doctorID);
             pstmt.setString(3, apptStatus);
@@ -100,7 +101,8 @@ public class updateAppointment {
             pstmt.setTimestamp(6, fixDateFormat(endTime));
             pstmt.setString(7, consultationType);
             pstmt.setInt(8, virtualConsultation);
-            pstmt.setString(9, appointmentID);
+            pstmt.setInt(9,1);
+            pstmt.setString(10, appointmentID);
 
             pstmt.executeUpdate();
 
@@ -171,6 +173,89 @@ public class updateAppointment {
             conn.close();
 
             System.out.println("Connection Successful");
+            return 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int rollbackTransaction(){
+        try {
+            Connection conn;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(appointment.connectionString());
+
+            PreparedStatement pstmt = conn.prepareStatement("ROLLBACK");
+            pstmt.executeUpdate();
+
+            pstmt.close();
+            conn.close();
+
+            System.out.println("Connection Successful");
+            return 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int checkTransaction(){
+        try {
+            Connection conn;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(appointment.connectionString());
+
+            PreparedStatement pstmt = conn.prepareStatement("SELECT editAppointment FROM appointments WHERE appointmentID=?");
+            pstmt.setString(1, appointmentID);
+            ResultSet rst = pstmt.executeQuery();
+
+            while(rst.next()) {
+                if(rst.getInt("editAppointment") == 0){
+                    System.out.println("No conflicting transaction");
+                    pstmt.close();
+                    conn.close();
+                    return 1;
+                }
+                else{
+                    this.rollbackTransaction();
+                    System.out.println("Conflicting transaction");
+                    pstmt.close();
+                    conn.close();
+                    return 0;
+                }
+            }
+
+            // error no resulting set
+            return 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int resetEditTransaction(){
+        try {
+            Connection conn;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(appointment.connectionString());
+
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE appointments SET editAppointment=? WHERE appointmentID=?");
+
+            pstmt.setInt(1, 0);
+            pstmt.setString(2, appointmentID);
+
+            pstmt.executeUpdate();
+
+            conn.commit();
+            pstmt.close();
+            conn.close();
+
+            System.out.println("ApptID: " + appointmentID);
+            System.out.println("Edit Appointment Reset.");
             return 1;
 
         } catch (Exception e) {

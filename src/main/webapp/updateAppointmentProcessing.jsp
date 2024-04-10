@@ -35,22 +35,29 @@
         UpdateC.virtualConsultation     = UpdateC.virtualUpdate(v_virtualConsultation);
         UpdateC.appointmentID           = (String) session.getAttribute("appointmentID");
 
+        int result = 0;
+        if(UpdateC.checkTransaction() == 1){
+            result = UpdateC.updateAppointments();
+            UpdateC.commitTransaction();
+            UpdateC.resetEditTransaction();
+        } else { %>
+            <h1>Failed to Update. Another transaction in place.</h1>
+            <a href="updateAppointment.jsp"><button>Go Back to Update Appointment Selection</button></a>
+        <% } %>
 
-        int result = UpdateC.updateAppointments();
-        UpdateC.commitTransaction();
+        <%
         if (result == 0) { %>
-        <h1>Fail</h1>
+        <h1>Failed to Update Appointment.</h1>
     <div class="row">
         <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
     </div>
         <% }
         else { %>
-        <h1>Pass</h1>
+        <h1>Update Succesful.</h1>
     <div class="row">
         <button type="submit" class="btn btn-primary mx-auto my-2 w-100">Go Back to Menu</button>
     </div>
         <% } %>
-
 </form>
 </body>
 </html>
