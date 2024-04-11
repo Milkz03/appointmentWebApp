@@ -225,6 +225,11 @@ public class ConcurrencyTest {
             updateAppointment.appointment.connectionNumber = 1;
             updateAppointment.startTransaction();
             updateAppointment.infoAppointments();
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             updateAppointment.patientID = test_ForThread1;
             updateAppointment.doctorID = "Doctor1";
             updateAppointment.apptStatus = "Status1";
@@ -249,6 +254,11 @@ public class ConcurrencyTest {
             updateAppointment1.appointment.connectionNumber = 0;
             updateAppointment1.startTransaction();
             updateAppointment1.infoAppointments();
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             updateAppointment1.patientID = test_ForThread2;
             updateAppointment1.doctorID = "Doctor2";
             updateAppointment1.apptStatus = "Status2";
@@ -270,7 +280,7 @@ public class ConcurrencyTest {
         });
 
         thread1.start();
-        Thread.sleep(200);
+        Thread.sleep(3000);
         thread2.start();
 
         thread1.join();
@@ -372,6 +382,7 @@ public class ConcurrencyTest {
             updateAppointment.consultationType = "Consultation";
             updateAppointment.virtualConsultation = 222;
             updateAppointment.updateAppointments();
+            updateAppointment.resetEditTransaction();
         });
 
         Thread thread2 = new Thread(() -> {
@@ -444,6 +455,7 @@ public class ConcurrencyTest {
             updateAppointment1.updateAppointments();
             updateAppointment1.infoAppointments();
             virtualConsultationT1R2[0] = updateAppointment1.virtualConsultation;
+            updateAppointment1.resetEditTransaction();
             updateAppointment1.commitTransaction();
         });
 
@@ -472,6 +484,7 @@ public class ConcurrencyTest {
             updateAppointment2.updateAppointments();
             updateAppointment2.infoAppointments();
             virtualConsultationT2R2[0] = updateAppointment2.virtualConsultation;
+            updateAppointment2.resetEditTransaction();
             updateAppointment2.commitTransaction();
         });
 
